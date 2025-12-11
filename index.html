@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,221 +13,249 @@
             width: 100%;
             height: 100vh;
         }
+
         .control-panel {
             position: absolute;
-            bottom: 10px;
+            top: 10px;
             left: 10px;
             background: white;
             padding: 10px;
             z-index: 1000;
             border: 1px solid #ccc;
             border-radius: 5px;
-            max-width: 300px; /* Limit width for better responsiveness */
+            max-width: 300px;
+            /* Limit width for better responsiveness */
             overflow: hidden;
         }
+
         @media (max-width: 500px) {
             .control-panel {
-                max-width: 90%; /* Allow wider usage on mobile */
-                bottom: 5px;
+                max-width: 90%;
+                /* Allow wider usage on mobile */
+                top: 5px;
                 left: 5px;
             }
         }
+
         @media (max-height: 500px) {
             .control-panel {
-                bottom: 5px;
+                top: 5px;
                 left: 5px;
-                padding: 5px; /* Reduce padding for small screens */
+                padding: 5px;
+                /* Reduce padding for small screens */
             }
         }
     </style>
 </head>
+
 <body>
 
-<div id="map"></div>
-<div class="control-panel">
-    <h5 class="m-2">香港停車場地圖（HK.GOV 開放數據）</h5>
-    <div class="accordion" id="accordionDetails">
-        <div class="card">
-            <div class="card-header" id="headingDetails">
-                <h5 class="mb-0">
-                    <button id="btn-appname-toggle" class="btn btn-link w-100" type="button" data-toggle="collapse" data-target="#details" aria-expanded="true" aria-controls="details">
-                        切換詳情
-                    </button>
-                </h5>
-            </div>
-            <div id="details" class="collapse show" aria-labelledby="headingDetails" data-parent="#accordionDetails">
-                <div class="card-body">
-                    <label for="district-select"><b>選擇區域：</b></label>
-                    <select id="district-select" class="form-control">
-                        <option value="all">所有區域</option>
-                        <!-- Options will be populated dynamically -->
-                    </select>
-                    <p class="text-success fst-italic m-0 mt-2"><strong>最後更新時間：</strong> <span id="last-update-time"></span></p>
+    <div id="map"></div>
+    <div class="control-panel">
+        <h5 class="m-2">香港停車場地圖（HK.GOV 開放數據）</h5>
+        <div class="accordion" id="accordionDetails">
+            <div class="card">
+                <div class="card-header" id="headingDetails">
+                    <h5 class="mb-0">
+                        <button id="btn-appname-toggle" class="btn btn-link w-100" type="button" data-toggle="collapse"
+                            data-target="#details" aria-expanded="true" aria-controls="details">
+                            切換詳情
+                        </button>
+                    </h5>
+                </div>
+                <div id="details" class="collapse show" aria-labelledby="headingDetails"
+                    data-parent="#accordionDetails">
+                    <div class="card-body">
+                        <label for="district-select"><b>選擇區域：</b></label>
+                        <select id="district-select" class="form-control">
+                            <option value="all">所有區域</option>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                        <p class="text-success fst-italic m-0 mt-2"><strong>最後更新時間：</strong> <span
+                                id="last-update-time"></span></p>
+                    </div>
+                    <div class="popup-content mt-2" id="popup-card" style="display: none;">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title" id="popup-title">信息</h5>
+                                <p class="card-text" id="popup-address">地址：</p>
+                                <p class="card-text" id="popup-district">區域：</p>
+                                <p class="card-text" id="popup-contact">聯絡號碼：</p>
+                                <button id="btn-display-image" class="btn btn-primary"
+                                    style="width: 100%;">查看圖片</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="popup-content mt-2" id="popup-card" style="display: none;">
-        <div class="card">
-            <div class="card-body"> 
-                <h5 class="card-title" id="popup-title">信息</h5>
-                <p class="card-text" id="popup-address">地址：</p>
-                <p class="card-text" id="popup-district">區域：</p>
-                <p class="card-text" id="popup-contact">聯絡號碼：</p>
-                <button id="btn-display-image" class="btn btn-primary" style="width: 100%;">查看圖片</button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script>
-    // Initialize the map
-    let map = L.map('map', {
-        zoomControl: false
-    }).setView([22.3564, 114.1199], 14); // Centering on Hong Kong
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        window.defaultSelectedDistrict = "荃灣區";
 
-    // Set up the Tile Layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-    }).addTo(map);
+        // Initialize the map
+        let map = L.map('map', {
+            zoomControl: false
+        }).setView([22.3564, 114.1199], 14); // Centering on Hong Kong
 
-    // Add zoom control to top right
-    L.control.zoom({ position: 'topright' }).addTo(map);
+        // Set up the Tile Layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
 
-    // Icon for car parks
-    const carParkIcon = L.icon({
-        iconUrl: 'https://img.icons8.com/?size=100&id=40828&format=png&color=000000',
-        iconSize: [30, 30]
-    });
+        // Add zoom control to top right
+        L.control.zoom({ position: 'topright' }).addTo(map);
 
-    // Create global variables for markers and car park data
-    let markers = [];
-    let carParksData = [];
-
-    // Last update time
-    const lastUpdateTime = new Date().toISOString().slice(0, 19).replace('T', ' '); // Format the datetime
-    document.getElementById('last-update-time').innerText = lastUpdateTime;
-
-    // Fetch car park data
-    fetch('https://portal.csdi.gov.hk/server/services/common/td_rcd_1638948197838_85279/MapServer/WFSServer?service=wfs&request=GetFeature&typenames=basic_info_all&outputFormat=geojson')
-        .then(response => response.json())
-        .then(data => {
-            carParksData = data.features; // Store car parks data
-            populateDistricts();
-            addMarkers(carParksData);
-        })
-        .catch(error => console.error('獲取停車場數據時出錯:', error));
-
-    // Function to populate districts in the dropdown
-    function populateDistricts() {
-        const districtSelect = document.getElementById('district-select');
-        const districts = [...new Set(carParksData.map(feature => feature.properties.district_tc))];
-
-        districts.forEach(district => {
-            const option = document.createElement('option');
-            option.value = district;
-            option.textContent = district;
-            districtSelect.appendChild(option);
+        // Icon for car parks
+        const carParkIcon = L.icon({
+            iconUrl: 'https://img.icons8.com/?size=100&id=40828&format=png&color=000000',
+            iconSize: [30, 30]
         });
 
-        // Add an event listener to filter markers on change
-        districtSelect.addEventListener('change', function () {
-            const selectedDistrict = this.value;
-            filterMarkers(selectedDistrict);
-            fitMarkersToBounds(selectedDistrict);
-            if (selectedDistrict !== "all") {
-                // Automatically pan to the selected district
-                panToSelectedDistrict(selectedDistrict);
+        // Create global variables for markers and car park data
+        let markers = [];
+        let carParksData = [];
+
+        // Last update time
+        const lastUpdateTime = new Date().toISOString().slice(0, 19).replace('T', ' '); // Format the datetime
+        document.getElementById('last-update-time').innerText = lastUpdateTime;
+
+        // Fetch car park data
+        const detailButton = document.querySelector("#btn-appname-toggle")
+        detailButton.click();
+        detailButton.disabled = true;
+        fetch('https://portal.csdi.gov.hk/server/services/common/td_rcd_1638948197838_85279/MapServer/WFSServer?service=wfs&request=GetFeature&typenames=basic_info_all&outputFormat=geojson')
+            .then(response => response.json())
+            .then(data => {
+                carParksData = data.features; // Store car parks data
+                populateDistricts();
+                addMarkers(carParksData);
+                detailButton.disabled = false;
+            })
+            .catch(error => console.error('獲取停車場數據時出錯:', error));
+
+        // Function to populate districts in the dropdown
+        function populateDistricts() {
+            const districtSelect = document.getElementById('district-select');
+            const districts = [...new Set(carParksData.map(feature => feature.properties.district_tc))];
+
+            districts.forEach(district => {
+                const option = document.createElement('option');
+                option.value = district;
+                option.textContent = district;
+                option.selected = district === window.defaultSelectedDistrict;
+                districtSelect.appendChild(option);
+            });
+
+            // Add an event listener to filter markers on change
+            districtSelect.addEventListener('change', function () {
+                const selectedDistrict = this.value;
+                filterMarkers(selectedDistrict);
+                fitMarkersToBounds(selectedDistrict);
+                if (selectedDistrict !== "all") {
+                    // Automatically pan to the selected district
+                    panToSelectedDistrict(selectedDistrict);
+                } else {
+                    // Reset view to Hong Kong if 'all' is selected
+                    map.setView([22.3564, 114.1199], 14);
+                }
+            });
+
+            setTimeout(
+                () => {
+                    // Trigger the change event programmatically
+                    const event = new Event('change');
+                    districtSelect.dispatchEvent(event);
+                },
+                200
+            );
+        }
+
+        // Function to pan the map to the selected district
+        function panToSelectedDistrict(selectedDistrict) {
+            const bounds = L.latLngBounds();
+
+            markers.forEach(item => {
+                if (item.district === selectedDistrict && item.marker) {
+                    bounds.extend(item.marker.getLatLng());
+                }
+            });
+
+            if (bounds.isValid()) {
+                map.fitBounds(bounds);
+            }
+        }
+
+        // Function to add markers to the map
+        function addMarkers(data) {
+            data.forEach(feature => {
+                const coord = feature.geometry.coordinates;
+                const properties = feature.properties;
+
+                const marker = L.marker([coord[1], coord[0]], { icon: carParkIcon })
+                    .addTo(map)
+                    .on('click', function () {
+                        // Show details in the bottom popup when marker is clicked
+                        document.getElementById('popup-title').innerHTML = properties.name_tc + ' / ' + properties.name_en;
+                        document.getElementById('popup-address').innerHTML = `<b>地址：</b>${properties.displayAddress_tc} / ${properties.displayAddress_en}`;
+                        document.getElementById('popup-district').innerHTML = `<b>區域：</b>${properties.district_tc} / ${properties.district_en}`;
+                        document.getElementById('popup-contact').innerHTML = `<b>聯絡號碼：</b>${properties.contactNo || '沒有資料'}`;
+                        // Show popup card
+                        document.getElementById('popup-card').style.display = 'block';
+
+                        // Handle image display button click
+                        document.getElementById('btn-display-image').onclick = () => {
+                            Swal.fire({
+                                title: properties.name_tc,
+                                imageUrl: properties.carpark_photo, // Use a valid image URL based on your data
+                                imageAlt: properties.name_en,
+                                showConfirmButton: false,
+                                showCancelButton: false,
+                                showCloseButton: true,
+                            });
+                        };
+                    });
+
+                markers.push({ marker, district: properties.district_tc });
+            });
+        }
+
+        // Function to filter markers based on the selected district
+        function filterMarkers(selectedDistrict) {
+            // Clear all markers from the map
+            markers.forEach(item => {
+                map.removeLayer(item.marker);
+            });
+
+            // Add back only the markers that match the selected district
+            markers.filter(item => item.district === selectedDistrict).forEach(item => {
+                item.marker.addTo(map);
+            });
+        }
+
+        // Function to fit map bounds based on filtered markers
+        function fitMarkersToBounds(selectedDistrict) {
+            const bounds = L.latLngBounds();
+
+            markers.forEach(item => {
+                if (item.district === selectedDistrict && item.marker) {
+                    bounds.extend(item.marker.getLatLng());
+                }
+            });
+
+            if (bounds.isValid()) {
+                map.fitBounds(bounds);
             } else {
-                // Reset view to Hong Kong if 'all' is selected
-                map.setView([22.3564, 114.1199], 14);
+                map.setView([22.3564, 114.1199], 14); // Reset to default if no markers
             }
-        });
-    }
-
-    // Function to pan the map to the selected district
-    function panToSelectedDistrict(selectedDistrict) {
-        const bounds = L.latLngBounds();
-
-        markers.forEach(item => {
-            if (item.district === selectedDistrict && item.marker) {
-                bounds.extend(item.marker.getLatLng());
-            }
-        });
-
-        if (bounds.isValid()) {
-            map.fitBounds(bounds);
         }
-    }
-
-    // Function to add markers to the map
-    function addMarkers(data) {
-        data.forEach(feature => {
-            const coord = feature.geometry.coordinates;
-            const properties = feature.properties;
-
-            const marker = L.marker([coord[1], coord[0]], { icon: carParkIcon })
-                .addTo(map)
-                .on('click', function () {
-                    // Show details in the bottom popup when marker is clicked
-                    document.getElementById('popup-title').innerHTML = properties.name_tc + ' / ' + properties.name_en;
-                    document.getElementById('popup-address').innerHTML = `<b>地址：</b>${properties.displayAddress_tc} / ${properties.displayAddress_en}`;
-                    document.getElementById('popup-district').innerHTML = `<b>區域：</b>${properties.district_tc} / ${properties.district_en}`;
-                    document.getElementById('popup-contact').innerHTML = `<b>聯絡號碼：</b>${properties.contactNo || '沒有資料'}`;
-                    // Show popup card
-                    document.getElementById('popup-card').style.display = 'block';
-
-                    // Handle image display button click
-                    document.getElementById('btn-display-image').onclick = () => {
-                        Swal.fire({
-                            title: properties.name_tc,
-                            imageUrl: properties.carpark_photo, // Use a valid image URL based on your data
-                            imageAlt: properties.name_en,
-                            showConfirmButton: false,
-                            showCancelButton: false,
-                            showCloseButton: true,
-                        });
-                    };
-                });
-
-            markers.push({ marker, district: properties.district_tc });
-        });
-    }
-
-    // Function to filter markers based on the selected district
-    function filterMarkers(selectedDistrict) {
-        // Clear all markers from the map
-        markers.forEach(item => {
-            map.removeLayer(item.marker);
-        });
-
-        // Add back only the markers that match the selected district
-        markers.filter(item => item.district === selectedDistrict).forEach(item => {
-            item.marker.addTo(map);
-        });
-    }
-
-    // Function to fit map bounds based on filtered markers
-    function fitMarkersToBounds(selectedDistrict) {
-        const bounds = L.latLngBounds();
-
-        markers.forEach(item => {
-            if (item.district === selectedDistrict && item.marker) {
-                bounds.extend(item.marker.getLatLng());
-            }
-        });
-
-        if (bounds.isValid()) {
-            map.fitBounds(bounds);
-        } else {
-            map.setView([22.3564, 114.1199], 14); // Reset to default if no markers
-        }
-    }
-</script>
+    </script>
 </body>
+
 </html>
