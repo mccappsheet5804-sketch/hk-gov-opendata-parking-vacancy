@@ -52,7 +52,7 @@
 
     <div id="map"></div>
     <div class="control-panel">
-        <h5 class="m-2">香港停車場地圖（HK.GOV 開放數據）</h5>
+        <h5 class="m-2">香港停車場地圖<br/>（HK.GOV 開放數據）</h5>
         <div class="accordion" id="accordionDetails">
             <div class="card">
                 <div class="card-header" id="headingDetails">
@@ -71,8 +71,11 @@
                             <option value="all">所有區域</option>
                             <!-- Options will be populated dynamically -->
                         </select>
-                        <p class="text-success fst-italic m-0 mt-2"><strong>最後更新時間：</strong> <span
-                                id="last-update-time"></span></p>
+                        <p class="text-success fst-italic m-0 mt-2">
+                            <strong>最後更新時間：</strong>
+                            <br/>
+                            <span id="last-update-time"></span>
+                        </p>
                     </div>
                     <div class="popup-content mt-2" id="popup-card" style="display: none;">
                         <div class="card">
@@ -81,6 +84,7 @@
                                 <p class="card-text" id="popup-address">地址：</p>
                                 <p class="card-text" id="popup-district">區域：</p>
                                 <p class="card-text" id="popup-contact">聯絡號碼：</p>
+                                <p class="card-text" id="popup-vacancy" hidden>泊置空位：</p>
                                 <button id="btn-display-image" class="btn btn-primary"
                                     style="width: 100%;">查看圖片</button>
                             </div>
@@ -206,6 +210,22 @@
                         document.getElementById('popup-address').innerHTML = `<b>地址：</b>${properties.displayAddress_tc} / ${properties.displayAddress_en}`;
                         document.getElementById('popup-district').innerHTML = `<b>區域：</b>${properties.district_tc} / ${properties.district_en}`;
                         document.getElementById('popup-contact').innerHTML = `<b>聯絡號碼：</b>${properties.contactNo || '沒有資料'}`;
+
+                        // // Fetch vacancy data
+                        // const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+                        // const vacancyUrl = proxyUrl + properties.vacancy_url;
+                        // fetch(vacancyUrl)
+                        //     .then(response => response.json())
+                        //     .then(vacancyData => {
+                        //         console.log(vacancyData)
+                        //         document.getElementById('popup-vacancy').innerHTML = `<b>泊置空位：</b>${JSON.stringify(vacancyData.car_park) || '沒有資料'}`;
+                        //     })
+                        //     .catch(error => {
+                        //         alert(`瀏覽：https://cors-anywhere.herokuapp.com/corsdemo，點擊「Request temporary access to the demo server」。`)
+                        //         console.error('獲取泊置空位數據時出錯:', error);
+                        //         document.getElementById('popup-vacancy').innerHTML = `<b>泊置空位：</b>無法獲取數據`;
+                        //     });
+
                         // Show popup card
                         document.getElementById('popup-card').style.display = 'block';
 
