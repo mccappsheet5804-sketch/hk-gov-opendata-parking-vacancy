@@ -205,6 +205,9 @@
                 const marker = L.marker([coord[1], coord[0]], { icon: carParkIcon })
                     .addTo(map)
                     .on('click', function () {
+                        const detailButton = document.querySelector("#btn-appname-toggle")
+                        detailButton.click();
+                        
                         // Show details in the bottom popup when marker is clicked
                         document.getElementById('popup-title').innerHTML = properties.name_tc + ' / ' + properties.name_en;
                         document.getElementById('popup-address').innerHTML = `<b>地址：</b>${properties.displayAddress_tc} / ${properties.displayAddress_en}`;
